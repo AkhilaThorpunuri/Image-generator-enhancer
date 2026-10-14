@@ -1,4 +1,4 @@
-import {
+﻿import {
   useEffect,
   useRef,
   useState,
@@ -17,32 +17,15 @@ import type {
 } from "./services/templateService";
 
 
-const API_BASE_URL =
-  window.location.hostname.includes("railway.app")
-    ? "https://agentic-content-generator-production.up.railway.app"
-    : "http://localhost:8000";
-
-
-function resolveApiUrl(url: string): string {
-  if (!url) {
-    return "";
-  }
-
-  if (
-    /^https?:\/\//i.test(url) ||
-    url.startsWith("blob:")
-  ) {
-    return url;
-  }
-
-  return `${API_BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
-}
+import { API_BASE_URL, resolveApiUrl } from "./lib/apiUrl";
 
 
 type ReferenceType =
   | "image"
   | "gif"
   | "pdf"
+  | "ppt"
+  | "pptx"
   | "video"
   | "youtube"
   | "image-link";
@@ -475,7 +458,7 @@ function ApiKeySetup({
         <div className="api-setup-header">
 
           <div className="api-setup-mark">
-            ✦
+            âœ¦
           </div>
 
           <div>
@@ -616,7 +599,7 @@ function ApiKeySetup({
             >
 
               <span className="api-upload-icon">
-                ↑
+                â†‘
               </span>
 
               <span>
@@ -657,7 +640,7 @@ function ApiKeySetup({
               }}
             >
               <span aria-hidden="true">
-                ↓
+                â†“
               </span>
 
               <span>
@@ -671,7 +654,7 @@ function ApiKeySetup({
                 <div className="api-uploaded-file">
 
                   <span className="api-file-check">
-                    ✓
+                    âœ“
                   </span>
 
                   <div>
@@ -738,7 +721,7 @@ function ApiKeySetup({
               <div className="api-setup-empty">
 
                 <div className="api-setup-empty-icon">
-                  ◇
+                  â—‡
                 </div>
 
                 <strong>
@@ -827,7 +810,7 @@ function ApiKeySetup({
           <div className="api-security-note">
 
             <span>
-              ✓
+              âœ“
             </span>
 
             <div>
@@ -852,7 +835,7 @@ function ApiKeySetup({
               className="api-back-home-button"
               onClick={onBackToHome}
             >
-              <span>←</span>
+              <span>â†</span>
               Home
             </button>
 
@@ -873,7 +856,7 @@ function ApiKeySetup({
               : "Continue to Image Generator"}
 
             <span>
-              →
+              â†’
             </span>
 
           </button>
@@ -985,7 +968,7 @@ function getApiServiceIcon(
       alt: "Google",
     },
 
-    // AI providers — exact product icons
+    // AI providers â€” exact product icons
     {
       matches: [
         "openrouter api",
@@ -1533,10 +1516,10 @@ function ImageGenerator({
   const [templateApiModel, setTemplateApiModel] =
     useState("");
 
-  const [promptApiProvider, setPromptApiProvider] =
+  const [promptApiProvider] =
     useState("");
 
-  const [promptApiModel, setPromptApiModel] =
+  const [promptApiModel] =
     useState("");
 
   const [generatedImageUrl, setGeneratedImageUrl] =
@@ -1545,7 +1528,7 @@ function ImageGenerator({
   const [generatedImageFilename, setGeneratedImageFilename] =
     useState("");
 
-  const [generatedImageDescription, setGeneratedImageDescription] =
+  const [, setGeneratedImageDescription] =
     useState("");
 
   type SocialDescriptionItem = {
@@ -1611,7 +1594,7 @@ function ImageGenerator({
   const [isTaggingImages, setIsTaggingImages] =
     useState(false);
 
-  const [isGeneratingTemplate, setIsGeneratingTemplate] =
+  const [isGeneratingTemplate] =
     useState(false);
 
   const [previewUrls, setPreviewUrls] =
@@ -1804,14 +1787,16 @@ function ImageGenerator({
    * ------------------------------------------------------------
    */
 
-  useEffect(() => {
-    void loadInputFiles();
-    void loadDriveOutputFolders();
+  
+useEffect(() => {
+  void loadInputFiles();
 
-    // Load Google Drive references once when
-    // the workspace opens.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Google Drive output folders are loaded when the user
+  // attempts to save a generated image, after configuration
+  // has been provided.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
 
 
   async function preloadReferencePreviews(
@@ -3198,7 +3183,7 @@ function ImageGenerator({
         <div className="media-preview youtube-preview">
 
           <div className="youtube-icon">
-            ▶
+            â–¶
           </div>
 
           <div className="youtube-preview-text">
@@ -3779,7 +3764,7 @@ const handleOpenGeneratedImageInCanva = async () => {
         <div className="brand-area">
 
           <div className="brand-mark">
-            ✦
+            âœ¦
           </div>
 
           <div>
@@ -3869,7 +3854,7 @@ const handleOpenGeneratedImageInCanva = async () => {
             className="header-button"
             onClick={onBackToApiSetup}
           >
-            ← API Setup
+            â† API Setup
           </button>
 
           <button
@@ -3877,7 +3862,7 @@ const handleOpenGeneratedImageInCanva = async () => {
             className="header-button"
             onClick={onBackToHome}
           >
-            ⌂ Home
+            âŒ‚ Home
           </button>
 
           <button
@@ -3893,7 +3878,7 @@ const handleOpenGeneratedImageInCanva = async () => {
             className="settings-button"
             aria-label="Settings"
           >
-            ⚙
+            âš™
           </button>
 
         </div>
@@ -4039,7 +4024,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                       </strong>
 
                       <span>
-                        Choose one or more images. Each Google Drive image has a number you can use in the prompt (for example: “Use 1 and 3”).
+                        Choose one or more images. Each Google Drive image has a number you can use in the prompt (for example: â€œUse 1 and 3â€).
                       </span>
 
                     </div>
@@ -4082,7 +4067,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                         }
                         aria-label="Scroll reference images up"
                       >
-                        ▲
+                        â–²
                       </button>
 
                       <div
@@ -4244,7 +4229,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                                     {number !== null && <span style={{ position: "absolute", top: "6px", left: "6px", minWidth: "27px", height: "27px", padding: "0 7px", borderRadius: "8px", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "12px", background: "rgba(255,255,255,0.96)", color: "#4f46e5", border: "2px solid #635bff", boxShadow: "0 3px 10px rgba(79,70,229,0.18)" }}>{number}</span>}
                                   </div>
                                   <div title={selectedFile.name} style={{ marginTop: "5px", fontSize: "11px", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                    {number !== null ? `${number} · ` : ""}{selectedFile.name}
+                                    {number !== null ? `${number} Â· ` : ""}{selectedFile.name}
                                   </div>
                                 </div>
                               );
@@ -4265,7 +4250,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                         }
                         aria-label="Scroll reference images down"
                       >
-                        ▼
+                        â–¼
                       </button>
 
                     </>
@@ -4322,13 +4307,13 @@ const handleOpenGeneratedImageInCanva = async () => {
                         </strong>
 
                         <span>
-                          Select multiple reference images. Use their highlighted numbers in the prompt (for example: “Use 1 for layout and 3 for the logo”).
+                          Select multiple reference images. Use their highlighted numbers in the prompt (for example: â€œUse 1 for layout and 3 for the logoâ€).
                         </span>
 
                       </div>
 
                       <span className="reference-count-pill">
-                        {inputFiles.filter((file) => file.source === "google-drive").length} Drive images · {selectedInputIds.length} selected
+                        {inputFiles.filter((file) => file.source === "google-drive").length} Drive images Â· {selectedInputIds.length} selected
                       </span>
 
                     </div>
@@ -4367,7 +4352,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                           }
                           aria-label="Scroll reference images up"
                         >
-                          ▲
+                          â–²
                         </button>
 
                         <div
@@ -4498,7 +4483,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                           }
                           aria-label="Scroll reference images down"
                         >
-                          ▼
+                          â–¼
                         </button>
 
                       </>
@@ -4600,7 +4585,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                                   boxShadow: "0 3px 12px rgba(0,0,0,0.25)",
                                 }}
                               >
-                                {number ?? "•"}
+                                {number ?? "â€¢"}
                               </div>
 
                               <div
@@ -4912,7 +4897,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                     <div className="template-no-reference">
 
                       <div className="template-empty-icon">
-                        ✦
+                        âœ¦
                       </div>
 
                       <strong>
@@ -5111,7 +5096,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                               templateResult.template.canvas.width
                             }
 
-                            {" × "}
+                            {" Ã— "}
 
                             {
                               templateResult.template.canvas.height
@@ -5322,7 +5307,7 @@ const handleOpenGeneratedImageInCanva = async () => {
 
 
                       <div className="template-output-note-icon">
-                        ✓
+                        âœ“
                       </div>
 
 
@@ -5351,7 +5336,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                   <div className="template-generation-state empty">
 
                     <div className="template-empty-icon">
-                      ✦
+                      âœ¦
                     </div>
 
                     <strong>
@@ -5399,10 +5384,9 @@ const handleOpenGeneratedImageInCanva = async () => {
                   </span>
                 </div>
 
-                {templateResult!.template.text_groups &&
-                templateResult!.template.text_groups.length > 0 ? (
+                {(templateResult!.template.text_groups?.length ?? 0) > 0 ? (
                   <div className="editable-text-list">
-                    {(Array.isArray(templateResult!.template.text_groups) ? templateResult!.template.text_groups : []).map((group) => (
+                    {(templateResult!.template.text_groups ?? []).map((group) => (
                       <div
                         key={group.id}
                         className="editable-text-item"
@@ -5418,16 +5402,15 @@ const handleOpenGeneratedImageInCanva = async () => {
                         <div className="editable-text-copy">
                           <strong>{group.text}</strong>
                           <span>
-                            {group.role} · {group.line_count} line{group.line_count === 1 ? "" : "s"}
+                            {group.role} Â· {group.line_count} line{group.line_count === 1 ? "" : "s"}
                           </span>
                         </div>
                       </div>
                     ))}
                   </div>
-                ) : templateResult!.template.text_elements &&
-                  templateResult!.template.text_elements.length > 0 ? (
+                ) : (templateResult!.template.text_elements?.length ?? 0) > 0 ? (
                   <div className="editable-text-list">
-                    {(Array.isArray(templateResult!.template.text_elements) ? templateResult!.template.text_elements : []).map((element) => (
+                    {(templateResult!.template.text_elements ?? []).map((element) => (
                       <div
                         key={element.id}
                         className="editable-text-item"
@@ -5439,7 +5422,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                         <div className="editable-text-copy">
                           <strong>{element.text}</strong>
                           <span>
-                            {element.id} · {element.width} × {element.height}px
+                            {element.id} Â· {element.width} Ã— {element.height}px
                           </span>
                         </div>
                       </div>
@@ -5594,7 +5577,7 @@ const handleOpenGeneratedImageInCanva = async () => {
 
 
               <div className="template-helper">
-                Use the highlighted Google Drive reference numbers directly in your prompt. Example: “Use 1 for the layout, 3 for the logo, and 5 for the color style.”
+                Use the highlighted Google Drive reference numbers directly in your prompt. Example: â€œUse 1 for the layout, 3 for the logo, and 5 for the color style.â€
               </div>
 
             </div>
@@ -5887,7 +5870,7 @@ const handleOpenGeneratedImageInCanva = async () => {
   >
     {isCreatingCanvaDesign
       ? "Opening Canva..."
-      : "🎨 Edit in Canva"}
+      : "ðŸŽ¨ Edit in Canva"}
   </button>
 </div>
 
@@ -6208,7 +6191,7 @@ const handleOpenGeneratedImageInCanva = async () => {
             <div className="output-placeholder">
 
               <div className="placeholder-icon">
-                □
+                â–¡
               </div>
 
 
@@ -6492,7 +6475,7 @@ const handleOpenGeneratedImageInCanva = async () => {
                   )
                 }
               >
-                ×
+                Ã—
               </button>
 
             </div>
@@ -6510,7 +6493,7 @@ const handleOpenGeneratedImageInCanva = async () => {
               >
 
                 <span className="modal-option-icon">
-                  ↑
+                  â†‘
                 </span>
 
 
@@ -6541,7 +6524,7 @@ const handleOpenGeneratedImageInCanva = async () => {
               >
 
                 <span className="modal-option-icon">
-                  ↗
+                  â†—
                 </span>
 
 
@@ -6800,7 +6783,7 @@ function HomePage({
           className="home-brand"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <span className="home-brand-mark">✦</span>
+          <span className="home-brand-mark">âœ¦</span>
           <span className="home-brand-text">
             <strong>Creative AI</strong>
             <small>Studio</small>
@@ -6816,8 +6799,8 @@ function HomePage({
       <section className="home-hero">
         <div className="home-hero-copy">
           <div className="home-eyebrow">
-            <span>✦</span>
-            CREATE • DESIGN • GENERATE
+            <span>âœ¦</span>
+            CREATE â€¢ DESIGN â€¢ GENERATE
           </div>
 
           <h1>
@@ -6852,14 +6835,14 @@ function HomePage({
           <div className="home-ring home-ring-large" />
           <div className="home-ring home-ring-small" />
           <div className="home-visual-core">
-            <span className="home-visual-spark">✦</span>
+            <span className="home-visual-spark">âœ¦</span>
             <strong>AI</strong>
             <small>CREATE</small>
           </div>
-          <span className="home-float home-float-one">✦</span>
-          <span className="home-float home-float-two">◆</span>
-          <span className="home-float home-float-three">●</span>
-          <span className="home-float home-float-four">✧</span>
+          <span className="home-float home-float-one">âœ¦</span>
+          <span className="home-float home-float-two">â—†</span>
+          <span className="home-float home-float-three">â—</span>
+          <span className="home-float home-float-four">âœ§</span>
         </div>
       </section>
 
@@ -6887,7 +6870,7 @@ function HomePage({
                   <span className="home-image-mountain" />
                 </span>
               </span>
-              <span className="home-card-arrow">↗</span>
+              <span className="home-card-arrow">â†—</span>
             </div>
 
             <div className="home-card-body">
@@ -6920,7 +6903,7 @@ function HomePage({
                 <span />
                 <span />
               </span>
-              <span className="home-card-arrow">↗</span>
+              <span className="home-card-arrow">â†—</span>
             </div>
 
             <div className="home-card-body">
@@ -6942,7 +6925,7 @@ function HomePage({
       </section>
 
       <section className="home-bottom-banner">
-        <span>✦</span>
+        <span>âœ¦</span>
         <div>
           <strong>One workspace. Endless possibilities.</strong>
           <small>Choose a tool above and start creating.</small>
@@ -6962,7 +6945,7 @@ function ContentGeneratorHome() {
   return (
     <main className="content-generator-placeholder">
       <div className="content-generator-placeholder-card">
-        <div className="content-generator-placeholder-icon">✦</div>
+        <div className="content-generator-placeholder-icon">âœ¦</div>
         <span>CONTENT GENERATOR</span>
         <h1>Content creation workspace</h1>
         <p>
@@ -6975,7 +6958,7 @@ function ContentGeneratorHome() {
             window.location.href = "/";
           }}
         >
-          ← Back to Home
+          â† Back to Home
         </button>
       </div>
     </main>
@@ -7211,3 +7194,4 @@ function App() {
 }
 
 export default App;
+

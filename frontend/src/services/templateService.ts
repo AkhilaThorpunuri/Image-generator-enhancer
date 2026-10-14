@@ -1,3 +1,6 @@
+
+import { API_BASE_URL } from "../lib/apiUrl";
+
 export interface ReferenceForTemplate {
   type:
     | "image"
@@ -9,27 +12,14 @@ export interface ReferenceForTemplate {
     | "youtube"
     | "image-link";
   name: string;
-  /**
-   * Browser preview URL.
-   *
-   * This may be a backend URL, external HTTPS URL,
-   * or browser blob URL.
-   *
-   * It is NOT necessarily the value sent to the backend.
-   */
+  /** Browser preview URL; it is not necessarily the source sent to the backend. */
   url: string;
-  source?:
-    | "input-folder"
-    | "external-url"
-    | "upload"
-    | "google-drive";
+  source?: "input-folder" | "external-url" | "upload" | "google-drive";
   /**
-   * Real backend source.
-   *
+   * Real backend source:
    * Google Drive -> Drive file ID
-   * Manual upload -> stored filename
-   * Input folder -> filename
-   * External URL / YouTube -> HTTP/HTTPS URL
+   * Manual upload / input folder -> stored filename
+   * External URL / YouTube -> HTTP(S) URL
    */
   sourceId?: string;
   mimeType?: string;
@@ -156,10 +146,6 @@ export interface GenerateTemplateResponse {
   template: GeneratedTemplate;
   template_file: string;
 }
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
-).replace(/\/+$/, "");
-
 
 type BackendSourceType =
   | "input-folder"
@@ -174,60 +160,65 @@ function getSourceType(
   if (reference.type === "youtube") {
     return "youtube";
   }
+
   if (reference.source === "google-drive") {
     return "google-drive";
   }
+
   if (reference.source === "upload") {
     return "upload";
   }
+
   if (reference.source === "input-folder") {
     return "input-folder";
   }
+
   return "external-url";
 }
 
-function getSource(
-  reference: ReferenceForTemplate,
-): string {
+function getSource(reference: ReferenceForTemplate): string {
   const sourceType = getSourceType(reference);
 
-  /*
-   * Google Drive
-   *
-   * The browser preview URL must NOT be sent
-   * to the backend.
-   *
-   * The actual Drive file ID is sent.
-   */
+  // Use the Google Drive file ID instead of a browser preview/blob URL.
   if (sourceType === "google-drive") {
     const driveFileId = reference.sourceId?.trim();
+
     if (!driveFileId) {
       throw new Error("Google Drive reference ID is missing.");
     }
+
     return driveFileId.replace(/^drive:/i, "");
   }
 
-  /*
-   * Local input / manual upload
-   */
-  if (sourceType === "upload" || sourceType === "input-folder") {
-    const filename = (reference.sourceId || reference.name).trim();
+  // Uploaded files and files from the input folder use their stored filename.
+  if (
+    sourceType === "upload" ||
+    sourceType === "input-folder"
+  ) {
+    const filename = (
+      reference.sourceId || reference.name
+    ).trim();
+
     if (!filename) {
       throw new Error("Uploaded reference filename is missing.");
     }
+
     return filename;
   }
 
-  /*
-   * External URL / YouTube
-   */
-  const externalSource = (reference.sourceId || reference.url).trim();
+  // External image URLs and YouTube references must be HTTP(S) URLs.
+  const externalSource = (
+    reference.sourceId || reference.url
+  ).trim();
+
   if (!externalSource) {
     throw new Error("Reference source is missing.");
   }
+
   if (!/^https?:\/\//i.test(externalSource)) {
     throw new Error("A valid HTTP or HTTPS URL is required.");
   }
+
   return externalSource;
 }
 
@@ -241,7 +232,7 @@ function getErrorMessage(data: unknown): string {
     message?: unknown;
   };
 
-  /* FastAPI validation errors */
+  // Handle FastAPI validation errors.
   if (Array.isArray(errorData.detail)) {
     const messages = errorData.detail
       .map((item) => {
@@ -250,17 +241,23 @@ function getErrorMessage(data: unknown): string {
             msg?: unknown;
             loc?: unknown[];
           };
+
           const message =
             typeof validationItem.msg === "string"
               ? validationItem.msg
               : "Invalid request.";
+
           const location = Array.isArray(validationItem.loc)
             ? validationItem.loc
                 .filter((part) => part !== "body")
                 .join(" → ")
             : "";
-          return location ? `${location}: ${message}` : message;
+
+          return location
+            ? `${location}: ${message}`
+            : message;
         }
+
         return String(item);
       })
       .filter(Boolean);
@@ -273,9 +270,11 @@ function getErrorMessage(data: unknown): string {
   if (typeof errorData.detail === "string") {
     return errorData.detail;
   }
+
   if (typeof errorData.message === "string") {
     return errorData.message;
   }
+
   return "Unable to generate template.";
 }
 
@@ -304,6 +303,7 @@ export async function generateTemplate(
   );
 
   let data: unknown = null;
+
   try {
     data = await response.json();
   } catch {
@@ -326,7 +326,9 @@ export async function generateTemplate(
   };
 
   if (!responseData.template) {
-    throw new Error("Template service returned an empty template.");
+    throw new Error(
+      "Template service returned an empty template.",
+    );
   }
 
   return responseData.template;
